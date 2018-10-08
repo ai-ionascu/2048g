@@ -27,12 +27,25 @@ html,body {
     background-color: #d5dbb6;
 }
 
-.full-tile {
+.random-tile {
     margin: 0 auto;
     padding: 0;
-    border: 2px solid brown;
-    background-color: red;
+    border: 3px solid brown;
+    background-color: #a5b070;
 }
 
+.new-tile {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.new-tile {
+    font-family: 'Roboto', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 5rem;
+}
 
 

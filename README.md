@@ -17,5 +17,6 @@
 ##### created animation function with multiplication function as callback
 ##### assign the right identifying css classes for the iterated cells (from the current line) and the target cell
 
+### features adapted for the other directional keys
 
 

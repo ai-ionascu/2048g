@@ -1,15 +1,16 @@
 html,body {
     height: 100%;
+    background-color: #92967e;
 }
 #titlediv, #scorediv {
     text-align: center;
-    color: red;
+    color: #fafafa;
 }
 #board-table {
     height: 50%;
     margin: auto;
     padding:0;
-    border: 5px solid brown;
+    border: 10px solid #ce9797;
 }
 
 .wrapper {
@@ -19,33 +20,33 @@ html,body {
 
 }
 
-.empty-tile {
+.empty-cell {
 
     margin: 0 auto;
     padding: 0;
-    border: 3px solid brown;
+    border: 5px solid #ce9797;
     background-color: #d5dbb6;
+    transition: background-color, .3s;
 }
 
-.random-tile {
+.full-cell {
     margin: 0 auto;
     padding: 0;
-    border: 3px solid brown;
-    background-color: #a5b070;
+    border: 5px solid #ce9797;
+    background-color: #995353;
+    transition: background-color, .3s;
 }
 
-.new-tile {
+.number-cell {
     position: absolute;
     margin: 0;
     padding: 0;
     text-align: center;
-}
-
-.new-tile {
     font-family: 'Roboto', sans-serif;
     font-size: 3rem;
     font-weight: 900;
     line-height: 5rem;
+    color: #fafafa;
 }
 
 

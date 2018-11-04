@@ -3,18 +3,13 @@ var cell_moved = false;
 
 // generate board with cells
 $(document).ready(function create_board(){
-    $('body').append('<h1 id = "titlediv"><strong>2048 DE URSI - JOACA ACUM!</strong></h1>');
-    $('body').append('<div id = "board-table" class = "col-12 col-sm-8 col-md-6 col-lg-4"></div>');
+    $('body').append('<h1 id = "titlediv"><strong>2048 - PLAY NOW!</strong></h1>');
+    $('body').append('<div class = "square"><div id = "board-table" class = "content"></div></div>');
         for (var i=0; i<4; i++){
-            $('#board-table').append(`<div class = "wrapper d-flex" line=${i+1}></div>`);
+            for (var j=0; j<4; j++){
+                $("#board-table").append(`<div class = "global-cell empty-cell" row= ${i} column=${j}></div>`);
+            }
         }
-        for (var j=0; j<4; j++){
-            $(".wrapper").append(`<div id = "global-cell" class = "col-3 global-cell empty-cell" column=${j+1}></div>`);
-        }
-    $(".wrapper").each(function(){
-        $(this).children().attr("line",$(this).attr("line"));
-        $(this).removeAttr("line");
-    });
     generate_random_two();
     generate_random_two();
     $('body').append('<h2 id = "scorediv">Your Score:</h2>');
@@ -27,10 +22,12 @@ function generate_random_two(){
     $(selectTile).removeClass("empty-cell");
     $(selectTile).addClass("full-cell");
     var cellPosition = $(selectTile).position();
-     $('#board-table').append(`<div id = "last-number" class = "number-cell" line = ${(selectTile).attr("line")} column = ${(selectTile).attr("column")}>2</div>`);
-     $('#last-number').css({top:(cellPosition.top+3)+'px',left:(cellPosition.left+3)+'px', width:($(selectTile).width())+'px', height:($(selectTile).height())+'px'});
+     $('#board-table').append(`<div id = "last-number" class = "number-cell" row = ${$(selectTile).attr("row")} column = ${$(selectTile).attr("column")}>2</div>`);
+     $('#last-number').css({top:(cellPosition.top)+'px',left:(cellPosition.left)+'px', width:($(selectTile).width())+'px', height:($(selectTile).height())+'px'});
+     $('#last-number').fadeTo(900,1,function(){
+				move_possible=true;
+			});
      $('#last-number').attr('id',"");
-     move_possible = true;
 }
 
 $(document).keydown(function(event){
@@ -39,17 +36,26 @@ $(document).keydown(function(event){
         cell_moved=false;
         switch (event.which || event.keyCode) {
             case 37 :
-            $('.number-cell').each(function(){
-                var current_line = parseInt($(this).attr('line'));
-                var current_column = parseInt($(this).attr('column'));
-                var target_column = current_column;
-                var similar_data = false;
-                if (current_column>1){
+            $('.number-cell').sort(function(a,b){
+				var attrA = parseInt($(a).html());
+				var attrB = parseInt($(b).html());
+				if(attrA>attrB){
+					return -1;
+				}		
+				if(attrA<attrB){
+					return 1;
+				}
+				return 0;
+			}).each(function(){
+                var this_row = parseInt($(this).attr('row'));
+                var this_column = parseInt($(this).attr('column'));
+                var target_column = this_column;
+                if (this_column>0){
                 var i;
-                    for (i = current_column-1; i >= 1; i --){
-                        if ($('.global-cell[line='+current_line+'][column='+i+']').hasClass('full-cell')){
-                            if ($(this).html() == $('.number-cell[line='+current_line+'][column='+i+']').html()){
-                                similar_data = true;
+                    for (i = this_column-1; i >= 0; i --){
+                        if ($('.global-cell[row='+this_row+'][column='+i+']').hasClass('full-cell')){
+                            if ($(this).html() == $('.number-cell[row='+this_row+'][column='+i+']').html()){
+                                $(this).addClass('merge');
                                 target_column = i;
                             }
                             break;
@@ -57,34 +63,42 @@ $(document).keydown(function(event){
                             target_column = i;
                             }
                     }
-                    console.log('target column: '+target_column);
-                    if (current_column!=target_column){
-                        cell_moved = true;
-                    }
-                    $(this).animate({ left: '-=' +(document.getElementById('global-cell').offsetWidth*(current_column-target_column))},300,function(){
-                        if (similar_data){
-                            $('.number-cell[line='+current_line+'][column='+target_column+']').html(parseInt($(this).html()*2));
+                    $(this).animate({ left: '-=' +(document.getElementsByClassName('empty-cell')[0].offsetWidth*(this_column-target_column))},100,function(){
+                        if ($(this).hasClass('merge')){
+                            $('.number-cell[row='+this_row+'][column='+target_column+']').html(parseInt($(this).html()*2));
                             $(this).remove();
                         }
                     });
-                    $('.global-cell[line='+current_line+'][column='+current_column+']').removeClass('full-cell').addClass('empty-cell');
+                    $('.global-cell[row='+this_row+'][column='+this_column+']').removeClass('full-cell').addClass('empty-cell');
 					$(this).attr('column',target_column);
-					$('.global-cell[line='+current_line+'][column='+target_column+']').removeClass('empty-cell').addClass('full-cell');
+					$('.global-cell[row='+this_row+'][column='+target_column+']').removeClass('empty-cell').addClass('full-cell');
                 }
+                if (this_column!=target_column){
+                        cell_moved = true;
+                    }
             });
             break;
             case 39 :
-            $('.number-cell').each(function(){
-                var current_line = parseInt($(this).attr('line'));
-                var current_column = parseInt($(this).attr('column'));
-                var target_column = current_column;
-                var similar_data = false;
-                if (current_column<4){
+            $('.number-cell').sort(function(a,b){
+				var attrA = parseInt($(a).html());
+				var attrB = parseInt($(b).html());
+				if(attrA>attrB){
+					return -1;
+				}		
+				if(attrA<attrB){
+					return 1;
+				}
+				return 0;
+			}).each(function(){
+                var this_row = parseInt($(this).attr('row'));
+                var this_column = parseInt($(this).attr('column'));
+                var target_column = this_column;
+                if (this_column<3){
                 var i;
-                    for (i = current_column+1; i <= 4; i ++){
-                        if ($('.global-cell[line='+current_line+'][column='+i+']').hasClass('full-cell')){
-                            if ($(this).html() == $('.number-cell[line='+current_line+'][column='+i+']').html()){
-                                similar_data = true;
+                    for (i = this_column+1; i <= 3; i ++){
+                        if ($('.global-cell[row='+this_row+'][column='+i+']').hasClass('full-cell')){
+                            if ($(this).html() == $('.number-cell[row='+this_row+'][column='+i+']').html()){
+                                $(this).addClass('merge');
                                 target_column = i;
                             }
                             break;
@@ -92,93 +106,107 @@ $(document).keydown(function(event){
                             target_column = i;
                             }
                     }
-                    console.log('target column: '+target_column);
-                    if (current_column!=target_column){
-                        cell_moved = true;
-                    }
-                    $(this).animate({ left: '+=' +(document.getElementById('global-cell').offsetWidth*(target_column-current_column))},300,function(){
-                        if (similar_data){
-                            $('.number-cell[line='+current_line+'][column='+target_column+']').html(parseInt($(this).html()*2));
+                    $(this).animate({ left: '+=' +(document.getElementsByClassName('empty-cell')[0].offsetWidth*(target_column-this_column))},100,function(){
+                        if ($(this).hasClass('merge')){
+                            $('.number-cell[row='+this_row+'][column='+target_column+']').html(parseInt($(this).html()*2));
                             $(this).remove();
                         }
                     });
-                    $('.global-cell[line='+current_line+'][column='+current_column+']').removeClass('full-cell').addClass('empty-cell');
+                    $('.global-cell[row='+this_row+'][column='+this_column+']').removeClass('full-cell').addClass('empty-cell');
 					$(this).attr('column',target_column);
-					$('.global-cell[line='+current_line+'][column='+target_column+']').removeClass('empty-cell').addClass('full-cell');
+					$('.global-cell[row='+this_row+'][column='+target_column+']').removeClass('empty-cell').addClass('full-cell');
                 }
+                if (this_column!=target_column){
+                        cell_moved = true;
+                    }
             });
             break;
             case 38 :
-            $('.number-cell').each(function(){
-                var current_line = parseInt($(this).attr('line'));
-                var current_column = parseInt($(this).attr('column'));
-                var target_line = current_line;
-                var similar_data = false;
-                if (current_line>1){
+            $('.number-cell').sort(function(a,b){
+				var attrA = parseInt($(a).html());
+				var attrB = parseInt($(b).html());
+				if(attrA>attrB){
+					return -1;
+				}		
+				if(attrA<attrB){
+					return 1;
+				}
+				return 0;
+			}).each(function(){
+                var this_row = parseInt($(this).attr('row'));
+                var this_column = parseInt($(this).attr('column'));
+                var target_row = this_row;
+                if (this_row>0){
                 var i;
-                    for (i = current_line-1; i >= 1; i --){
-                        if ($('.global-cell[line='+i+'][column='+current_column+']').hasClass('full-cell')){
-                            if ($(this).html() == $('.number-cell[line='+i+'][column='+current_column+']').html()){
-                                similar_data = true;
-                                target_line = i;
+                    for (i = this_row-1; i >= 0; i --){
+                        if ($('.global-cell[row='+i+'][column='+this_column+']').hasClass('full-cell')){
+                            if ($(this).html() == $('.number-cell[row='+i+'][column='+this_column+']').html()){
+                                $(this).addClass('merge');
+                                target_row = i;
                             }
                             break;
                         }else{
-                            target_line = i;
+                            target_row = i;
                             }
                     }
-                    console.log('target column: '+target_line);
-                    if (current_line!=target_line){
-                        cell_moved = true;
-                    }
-                    $(this).animate({ top: '-=' +(document.getElementById('global-cell').offsetHeight*(current_line-target_line))},300,function(){
-                        if (similar_data){
-                            $('.number-cell[line='+target_line+'][column='+current_column+']').html(parseInt($(this).html()*2));
+                    $(this).animate({ top: '-=' +(document.getElementsByClassName('empty-cell')[0].offsetHeight*(this_row-target_row))},100,function(){
+                        if ($(this).hasClass('merge')){
+                            $('.number-cell[row='+target_row+'][column='+this_column+']').html(parseInt($(this).html()*2));
                             $(this).remove();
                         }
                     });
-                    $('.global-cell[line='+current_line+'][column='+current_column+']').removeClass('full-cell').addClass('empty-cell');
-					$(this).attr('line',target_line);
-					$('.global-cell[line='+target_line+'][column='+current_column+']').removeClass('empty-cell').addClass('full-cell');
+                    $('.global-cell[row='+this_row+'][column='+this_column+']').removeClass('full-cell').addClass('empty-cell');
+					$(this).attr('row',target_row);
+					$('.global-cell[row='+target_row+'][column='+this_column+']').removeClass('empty-cell').addClass('full-cell');
                 }
+                if (this_row!=target_row){
+                        cell_moved = true;
+                    }
             });
             break;
             case 40 :
-            $('.number-cell').each(function(){
-                var current_line = parseInt($(this).attr('line'));
-                var current_column = parseInt($(this).attr('column'));
-                var target_line = current_line;
-                var similar_data = false;
-                if (current_line<4){
+            $('.number-cell').sort(function(a,b){
+				var attrA = parseInt($(a).html());
+				var attrB = parseInt($(b).html());
+				if(attrA>attrB){
+					return -1;
+				}		
+				if(attrA<attrB){
+					return 1;
+				}
+				return 0;
+			}).each(function(){
+                var this_row = parseInt($(this).attr('row'));
+                var this_column = parseInt($(this).attr('column'));
+                var target_row = this_row;
+                if (this_row<3){
                 var i;
-                    for (i = current_line+1; i <= 4; i ++){
-                        if ($('.global-cell[line='+i+'][column='+current_column+']').hasClass('full-cell')){
-                            if ($(this).html() == $('.number-cell[line='+i+'][column='+current_column+']').html()){
-                                similar_data = true;
-                                target_line = i;
+                    for (i = this_row+1; i <= 3; i ++){
+                        if ($('.global-cell[row='+i+'][column='+this_column+']').hasClass('full-cell')){
+                            if ($(this).html() == $('.number-cell[row='+i+'][column='+this_column+']').html()){
+                                $(this).addClass('merge');
+                                target_row = i;
                             }
                             break;
                         }else{
-                            target_line = i;
+                            target_row = i;
                             }
                     }
-                    console.log('target column: '+target_line);
-                    if (current_line!=target_line){
-                        cell_moved = true;
-                    }
-                    $(this).animate({ top: '+=' +(document.getElementById('global-cell').offsetHeight*(target_line-current_line))},300,function(){
-                        if (similar_data){
-                            $('.number-cell[line='+target_line+'][column='+current_column+']').html(parseInt($(this).html()*2));
+                    $(this).animate({ top: '+=' +(document.getElementsByClassName('empty-cell')[0].offsetHeight*(target_row-this_row))},100,function(){
+                        if ($(this).hasClass('merge')){
+                            $('.number-cell[row='+target_row+'][column='+this_column+']').html(parseInt($(this).html()*2));
                             $(this).remove();
                         }
                     });
-                    $('.global-cell[line='+current_line+'][column='+current_column+']').removeClass('full-cell').addClass('empty-cell');
-					$(this).attr('line',target_line);
-					$('.global-cell[line='+target_line+'][column='+current_column+']').removeClass('empty-cell').addClass('full-cell');
+                    $('.global-cell[row='+this_row+'][column='+this_column+']').removeClass('full-cell').addClass('empty-cell');
+					$(this).attr('row',target_row);
+					$('.global-cell[row='+target_row+'][column='+this_column+']').removeClass('empty-cell').addClass('full-cell');
                 }
+                if (this_row!=target_row){
+                        cell_moved = true;
+                    }
             });
             break;
-            
         }
         if (cell_moved){
                 generate_random_two();
@@ -189,5 +217,3 @@ $(document).keydown(function(event){
 	document.getElementById('scorediv').innerHTML = "GAME OVER!<br>Your highest score is:";
 	}
 });
-    
-    

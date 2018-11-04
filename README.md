@@ -20,3 +20,7 @@
 ### features adapted for the other directional keys
 
 
+### Fixes:
+
+##### board modified as responsive square;
+
